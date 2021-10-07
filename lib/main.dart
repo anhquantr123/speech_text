@@ -10,6 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       home: MyHomePage(),
     );
@@ -28,7 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool _speechEnabled = false;
   late String _lastWords = '';
   late String _resultText = '';
-  late dynamic _listLanguage = '';
+  late List _listLanguage = [];
 
   @override
   void initState() {
@@ -42,9 +43,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
+    // ja_JP
+    await _speechToText.listen(onResult: _onSpeechResult, localeId: "vi_VN");
     setState(() {});
-    getLanguage();
+    //getLanguage();
   }
 
   void _stopListening() async {
@@ -61,9 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   getLanguage() async {
     var locales = await _speechToText.locales();
-    print(locales);
+
     setState(() {
-      _listLanguage = locales;
+      for (var item in locales) {
+        _listLanguage.add(item.localeId);
+      }
+      //_listLanguage = locales.;
     });
   }
 
@@ -71,35 +76,70 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Speech Demo'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(16),
-              child: const Text(
-                'Recognized words:',
-                style: TextStyle(fontSize: 20.0),
-              ),
+          iconTheme: const IconThemeData(color: Colors.black),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          title: Center(
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                  border: Border.all(width: 1, color: Colors.black),
+                  borderRadius: BorderRadius.circular(10)),
+              child: const TextField(
+                  style: TextStyle(fontSize: 18),
+                  decoration: InputDecoration(border: InputBorder.none)),
             ),
-            SizedBox(height: 50, child: Text(_resultText)),
-            SizedBox(height: 50, child: Text("hello $_listLanguage")),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  // If listening is active show the recognized words
-                  _speechToText.isListening
-                      ? '$_lastWords'
-                      : _speechEnabled
-                          ? 'Tap the microphone to start listening...'
-                          : 'Speech not available',
-                ),
+          )),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
               ),
+              child: Text('Drawer Header'),
+            ),
+            ListTile(
+              title: const Text('Item 1'),
+              onTap: () {},
+            ),
+            ListTile(
+              title: const Text('Item 2'),
+              onTap: () {},
             ),
           ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(16),
+                child: const Text(
+                  'Recognized words:',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+              ),
+              SizedBox(height: 30, child: Text(_resultText)),
+              SizedBox(height: 400, child: Text(_listLanguage.toString())),
+              SizedBox(
+                child: Container(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    // If listening is active show the recognized words
+                    _speechToText.isListening
+                        ? '$_lastWords'
+                        : _speechEnabled
+                            ? 'Tap the microphone to start listening...'
+                            : 'Speech not available',
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
