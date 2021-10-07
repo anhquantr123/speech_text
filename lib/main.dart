@@ -28,6 +28,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool _speechEnabled = false;
   late String _lastWords = '';
   late String _resultText = '';
+  late dynamic _listLanguage = '';
 
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _startListening() async {
     await _speechToText.listen(onResult: _onSpeechResult);
     setState(() {});
+    getLanguage();
   }
 
   void _stopListening() async {
@@ -54,6 +56,14 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _lastWords = result.recognizedWords;
       _resultText = result.recognizedWords.toString();
+    });
+  }
+
+  getLanguage() async {
+    var locales = await _speechToText.locales();
+    print(locales);
+    setState(() {
+      _listLanguage = locales;
     });
   }
 
@@ -75,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             SizedBox(height: 50, child: Text(_resultText)),
+            SizedBox(height: 50, child: Text("hello $_listLanguage")),
             Expanded(
               child: Container(
                 padding: EdgeInsets.all(16),
@@ -82,10 +93,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   // If listening is active show the recognized words
                   _speechToText.isListening
                       ? '$_lastWords'
-                      // If listening isn't active but could be tell the user
-                      // how to start it, otherwise indicate that speech
-                      // recognition is not yet ready or not supported on
-                      // the target device
                       : _speechEnabled
                           ? 'Tap the microphone to start listening...'
                           : 'Speech not available',
