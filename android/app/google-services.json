@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "689652173619",
+    "project_id": "app-control-2730c",
+    "storage_bucket": "app-control-2730c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689652173619:android:2a96aec94f65cd0f09cc46",
+        "android_client_info": {
+          "package_name": "com.example.smart_button"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "689652173619-89l5vqrk3gapq4pp20vkt320s38ch9el.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBG-Up9M-O6Shi8qtum6dw86QcSwk-4bg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "689652173619-89l5vqrk3gapq4pp20vkt320s38ch9el.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

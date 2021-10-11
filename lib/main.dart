@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:translator/translator.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,7 +31,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late bool _speechEnabled = false;
   late String _lastWords = '';
   late String _resultText = '';
-  late List _listLanguage = [];
+  late bool _tiengViet = true;
+  late String _reesultTranslateText = "";
 
   @override
   void initState() {
@@ -44,7 +47,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _startListening() async {
     // ja_JP
-    await _speechToText.listen(onResult: _onSpeechResult, localeId: "vi_VN");
+    await _speechToText.listen(
+        onResult: _onSpeechResult,
+        localeId: _tiengViet == true ? "vi_VN" : "ja_JP");
     setState(() {});
     //getLanguage();
   }
@@ -55,90 +60,127 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-      _resultText = result.recognizedWords.toString();
-    });
+    try {
+      setState(() {
+        _lastWords = result.recognizedWords;
+        _resultText = result.recognizedWords.toString();
+      });
+      if (_resultText.isNotEmpty) {
+        translatorResult();
+      }
+    } catch (e) {
+      // ignore: avoid_print
+      print("Loi ");
+    }
   }
 
-  getLanguage() async {
-    var locales = await _speechToText.locales();
-
-    setState(() {
-      for (var item in locales) {
-        _listLanguage.add(item.localeId);
+  void translatorResult() async {
+    try {
+      final translator = GoogleTranslator();
+      if (_tiengViet == true) {
+        var translation =
+            await translator.translate(_resultText, from: "vi", to: 'ja');
+        setState(() {
+          _reesultTranslateText = translation.toString();
+        });
+      } else {
+        var translation =
+            await translator.translate(_resultText, from: "ja", to: 'vi');
+        setState(() {
+          _reesultTranslateText = translation.toString();
+        });
       }
-      //_listLanguage = locales.;
-    });
+    } catch (e) {
+      // ignore: avoid_print
+      print(e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.black),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Center(
-            child: Container(
-              height: 40,
-              decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: Colors.black),
-                  borderRadius: BorderRadius.circular(10)),
-              child: const TextField(
-                  style: TextStyle(fontSize: 18),
-                  decoration: InputDecoration(border: InputBorder.none)),
-            ),
-          )),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Drawer Header'),
-            ),
-            ListTile(
-              title: const Text('Item 1'),
-              onTap: () {},
-            ),
-            ListTile(
-              title: const Text('Item 2'),
-              onTap: () {},
-            ),
-          ],
-        ),
-      ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.all(16),
-                child: const Text(
-                  'Recognized words:',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-              ),
-              SizedBox(height: 30, child: Text(_resultText)),
-              SizedBox(height: 400, child: Text(_listLanguage.toString())),
-              SizedBox(
-                child: Container(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    // If listening is active show the recognized words
-                    _speechToText.isListening
-                        ? '$_lastWords'
-                        : _speechEnabled
-                            ? 'Tap the microphone to start listening...'
-                            : 'Speech not available',
+        child: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: _tiengViet == true
+                                ? MaterialStateProperty.all<Color>(Colors.green)
+                                : MaterialStateProperty.all<Color>(
+                                    Colors.black.withOpacity(0.5))),
+                        onPressed: () {
+                          setState(() {
+                            _tiengViet = true;
+                          });
+                        },
+                        child: Text("Tiếng Việt"),
+                      ),
+                      ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: _tiengViet == false
+                                ? MaterialStateProperty.all<Color>(Colors.green)
+                                : MaterialStateProperty.all<Color>(
+                                    Colors.black.withOpacity(0.5))),
+                        onPressed: () {
+                          setState(() {
+                            _tiengViet = false;
+                          });
+                        },
+                        child: Text("Tiếng nhật"),
+                      )
+                    ],
                   ),
                 ),
-              ),
-            ],
+                Container(
+                    padding: EdgeInsets.all(16),
+                    child: _tiengViet == true
+                        ? const Text(
+                            'Đang nhận dạng tiếng việt',
+                            style: TextStyle(fontSize: 20.0),
+                          )
+                        : const Text(
+                            'Đang nhận dạng tiếng nhật',
+                            style: TextStyle(fontSize: 20.0),
+                          )),
+                SizedBox(
+                    height: 30,
+                    child: Text(_resultText,
+                        style: const TextStyle(fontSize: 20))),
+                SizedBox(
+                  child: Container(
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      // If listening is active show the recognized words
+                      _speechToText.isListening
+                          ? '$_lastWords'
+                          : _speechEnabled
+                              ? 'Tap the microphone to start listening...'
+                              : 'Speech not available',
+                    ),
+                  ),
+                ),
+                const Text("Auto Translating....",
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Ứng dụng hỗ trợ dịch từ tiếng việt sang tiếng nhật và ngược lại",
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(_reesultTranslateText,
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
           ),
         ),
       ),
