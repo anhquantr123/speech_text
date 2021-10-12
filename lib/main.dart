@@ -55,7 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
         onResult: _onSpeechResult,
         localeId: _tiengViet == true ? "vi_VN" : "ja_JP");
     setState(() {});
-    //getLanguage();
   }
 
   void _stopListening() async {
