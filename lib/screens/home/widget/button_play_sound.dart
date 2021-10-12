@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-Visibility buttonPlaySound(String text, bool _showButtonPlaySound) {
+Visibility buttonPlaySound(
+    String text, bool _showButtonPlaySound, Function()? playTextSound) {
   return Visibility(
     visible: _showButtonPlaySound,
     child: Padding(
@@ -8,7 +9,7 @@ Visibility buttonPlaySound(String text, bool _showButtonPlaySound) {
       child: SizedBox(
           height: 30,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: playTextSound,
             icon: const Icon(
               Icons.volume_up_rounded,
               size: 20,
