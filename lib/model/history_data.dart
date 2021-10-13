@@ -1,6 +1,15 @@
 class History {
-  final String textFirst;
-  final String textSecond;
+  final String input;
+  final String result;
 
-  History({required this.textFirst, required this.textSecond});
+  History(this.input, this.result);
+
+  History.fromJson(Map<String, dynamic> json)
+      : input = json['input'],
+        result = json['result'];
+
+  Map<String, dynamic> toJson() => {
+        'input': input,
+        'result': result,
+      };
 }

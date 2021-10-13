@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable
+// ignore_for_file: unused_local_variable, avoid_print
 
 import 'dart:convert';
 
@@ -32,17 +32,38 @@ class _HomeScreenState extends State<HomeScreen> {
   late String _resultText = '';
   late TextEditingController _editingController;
   // ignore: prefer_final_fields
-  late bool _finishInputText = true, _showButtonPlaySound = false;
+  late bool _finishInputText = true,
+      _showButtonPlaySound = false,
+      _showHistory = false;
   late final FlutterTts flutterTts;
   late String _reesultTranslateText = "";
+  late SharedPreferences _sharedPreferences;
+  // ignore: prefer_final_fields
+  late List _listHistory = [];
 
   @override
   void initState() {
     super.initState();
     _initSpeech();
+    _initSharedPreferences();
     _inputTextFocus = FocusNode();
     _editingController = TextEditingController();
     flutterTts = FlutterTts();
+  }
+
+  _initSharedPreferences() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    //_sharedPreferences.remove("_historyData_");
+    try {
+      var _getData = _sharedPreferences.getString("_historyData_").toString();
+      if (_getData.isNotEmpty) {
+        setState(() {
+          _showHistory = true;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _initSpeech() async {
@@ -125,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onTapMic() {
     setState(() {
       _showButtonPlaySound = false;
+      _editingController.text = "";
     });
     if (_speechToText.isNotListening) {
       _editingController.text = "";
@@ -147,17 +169,35 @@ class _HomeScreenState extends State<HomeScreen> {
       _saveDataHistoryTranslate();
     }
     // save data
+    _saveDataHistoryTranslate();
   }
 
-  void _saveDataHistoryTranslate() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    // ignore: unnecessary_new
-    final his = History(textFirst: "anhquan", textSecond: "yeu trang");
+  Future _saveDataHistoryTranslate() async {
+    await Future.delayed(const Duration(milliseconds: 2000));
+    var _history = History(_resultText, _reesultTranslateText);
+    var _getData = _sharedPreferences.getString("_historyData_").toString();
+
+    if (_getData.isNotEmpty) {
+      _listHistory = json.decode(_getData);
+      _listHistory.add(json.encode(_history).toString());
+      await _sharedPreferences.setString(
+          "_historyData_", _listHistory.toString());
+      setState(() {
+        _showHistory = true;
+      });
+    } else {
+      _listHistory.add(json.encode(_history).toString());
+      await _sharedPreferences.setString(
+          "_historyData_", _listHistory.toString());
+      setState(() {
+        _showHistory = true;
+      });
+    }
   }
 
-  void translatorResult() async {
+  Future translatorResult() async {
+    final translator = GoogleTranslator();
     try {
-      final translator = GoogleTranslator();
       if (_isSelectVietnamese == true) {
         var translation = await translator.translate(
             _editingController.text.toString().trim(),
@@ -176,8 +216,10 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      showSnackBar("Lỗi không mong muốn");
+      _stopListening();
     }
+
+    _saveDataHistoryTranslate();
   }
 
   // play sound
@@ -264,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
               thickness: 5,
               color: Colors.black.withOpacity(0.2),
             ),
-            viewHistoryTranslation()
+            if (_showHistory) viewHistoryTranslation(_sharedPreferences)
           ],
         ),
       ),

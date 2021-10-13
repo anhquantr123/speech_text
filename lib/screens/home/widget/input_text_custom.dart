@@ -63,13 +63,10 @@ Padding inputTextCustom(
                         endRadius: 30,
                         duration: const Duration(milliseconds: 1000),
                         repeat: true,
-                        //showTwoGlows: true,
+                        showTwoGlows: true,
                         animate: _speechToText.isListening,
-                        repeatPauseDuration: const Duration(milliseconds: 1),
-                        child: Icon(
-                            _speechToText.isNotListening
-                                ? Icons.mic
-                                : Icons.mic,
+                        repeatPauseDuration: const Duration(milliseconds: 100),
+                        child: Icon(Icons.mic,
                             color: _speechToText.isNotListening
                                 ? Colors.black
                                 : Colors.red),
