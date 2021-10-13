@@ -158,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void translatorResult() async {
     try {
       final translator = GoogleTranslator();
-      print(_editingController.text.toString().trim());
       if (_isSelectVietnamese == true) {
         var translation = await translator.translate(
             _editingController.text.toString().trim(),
@@ -177,35 +176,42 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      // ignore: avoid_print
-      print(e);
+      showSnackBar("Lỗi không mong muốn");
     }
   }
 
   // play sound
   // ignore: unused_element
   void _playTextSoundInput() async {
-    if (_isSelectVietnamese) {
-      await flutterTts.setLanguage("vi-vn");
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_resultText);
-    } else {
-      await flutterTts.setLanguage("ja-jp");
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_resultText);
+    try {
+      if (_isSelectVietnamese) {
+        await flutterTts.setLanguage("vi-vn");
+        await flutterTts.setPitch(1);
+        await flutterTts.speak(_resultText);
+      } else {
+        await flutterTts.setLanguage("ja-jp");
+        await flutterTts.setPitch(1);
+        await flutterTts.speak(_resultText);
+      }
+    } catch (e) {
+      showSnackBar("Lỗi không mong muốn");
     }
   }
 
   // ignore: unused_element
   void _playTextSoundTranslate() async {
-    if (_isSelectVietnamese == false) {
-      await flutterTts.setLanguage("vi-vn");
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_reesultTranslateText);
-    } else {
-      await flutterTts.setLanguage("ja-jp");
-      await flutterTts.setPitch(1);
-      await flutterTts.speak(_reesultTranslateText);
+    try {
+      if (_isSelectVietnamese == false) {
+        await flutterTts.setLanguage("vi-vn");
+        await flutterTts.setPitch(1);
+        await flutterTts.speak(_reesultTranslateText);
+      } else {
+        await flutterTts.setLanguage("ja-jp");
+        await flutterTts.setPitch(1);
+        await flutterTts.speak(_reesultTranslateText);
+      }
+    } catch (e) {
+      showSnackBar("Lỗi không mong muốn");
     }
   }
 
@@ -214,6 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text("Translation"),
       ),
       body: SingleChildScrollView(
@@ -236,7 +243,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 _onTapClose,
                 _onTapMic,
                 _finishInputText,
-                _onTapFinishInputText),
+                _onTapFinishInputText,
+                _speechToText),
             const SizedBox(
               height: 30,
             ),
