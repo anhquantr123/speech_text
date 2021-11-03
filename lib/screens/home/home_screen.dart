@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable, avoid_print
 
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -45,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initSpeech();
-    _initSharedPreferences();
+    //_initSharedPreferences();
     _inputTextFocus = FocusNode();
     _editingController = TextEditingController();
     flutterTts = FlutterTts();
@@ -53,13 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   _initSharedPreferences() async {
     _sharedPreferences = await SharedPreferences.getInstance();
-    //_sharedPreferences.remove("_historyData_");
+    //await _sharedPreferences.remove("_historyData_");
     try {
       var _getData = _sharedPreferences.getString("_historyData_").toString();
       if (_getData.isNotEmpty) {
         setState(() {
           _showHistory = true;
         });
+        return 1;
       }
     } catch (e) {
       print(e);
@@ -173,19 +175,33 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future _saveDataHistoryTranslate() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
+    await Future.delayed(const Duration(milliseconds: 1500));
     var _history = History(_resultText, _reesultTranslateText);
     var _getData = _sharedPreferences.getString("_historyData_").toString();
 
-    if (_getData.isNotEmpty) {
-      _listHistory = json.decode(_getData);
-      _listHistory.add(json.encode(_history).toString());
-      await _sharedPreferences.setString(
-          "_historyData_", _listHistory.toString());
-      setState(() {
-        _showHistory = true;
-      });
+    // ignore: unnecessary_null_comparison
+    if (_getData != "null") {
+      if (_getData.isNotEmpty) {
+        _listHistory = [];
+        var _temp = json.decode(_getData.toString());
+        for (var i = 0; i < _temp.length; i++) {
+          // ignore: unnecessary_new
+          _listHistory.add(json
+              // ignore: unnecessary_new
+              .encode(new History(
+                  _temp[i]['input'].toString(), _temp[i]['result'].toString()))
+              .toString());
+        }
+        _listHistory.add(json.encode(_history).toString());
+        // print(json.encode(_history).toString());
+        await _sharedPreferences.setString(
+            "_historyData_", _listHistory.toString());
+        setState(() {
+          _showHistory = true;
+        });
+      }
     } else {
+      print("hello " + json.encode(_history).toString());
       _listHistory.add(json.encode(_history).toString());
       await _sharedPreferences.setString(
           "_historyData_", _listHistory.toString());
@@ -306,7 +322,17 @@ class _HomeScreenState extends State<HomeScreen> {
               thickness: 5,
               color: Colors.black.withOpacity(0.2),
             ),
-            if (_showHistory) viewHistoryTranslation(_sharedPreferences)
+            FutureBuilder(
+                future: _initSharedPreferences(),
+                builder: (context, snap) {
+                  if (snap.hasData) {
+                    return viewHistoryTranslation(_sharedPreferences);
+                  }
+                  return const SizedBox(
+                    height: 50,
+                  );
+                }),
+            //if (_showHistory) viewHistoryTranslation(_sharedPreferences)
           ],
         ),
       ),

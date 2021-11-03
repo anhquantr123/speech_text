@@ -28,24 +28,24 @@ Card viewTranslateResult(bool _isSelectVietnamese, Size size, String text,
             _isSelectVietnamese
                 ? const Text(
                     "(Vietnamese",
-                    style: TextStyle(fontSize: textSizeBody2),
+                    style: TextStyle(fontSize: textSizeBody3),
                   )
                 : const Text(
                     "(Japanese",
-                    style: TextStyle(fontSize: textSizeBody2),
+                    style: TextStyle(fontSize: textSizeBody3),
                   ),
             const Text(
               "---->",
-              style: TextStyle(fontSize: textSizeBody2),
+              style: TextStyle(fontSize: textSizeBody3),
             ),
             _isSelectVietnamese
                 ? const Text(
                     "Japanese)",
-                    style: TextStyle(fontSize: textSizeBody2),
+                    style: TextStyle(fontSize: textSizeBody3),
                   )
                 : const Text(
                     "Vietnamese)",
-                    style: TextStyle(fontSize: textSizeBody2),
+                    style: TextStyle(fontSize: textSizeBody3),
                   ),
             SizedBox(
               width: size.width / 3,

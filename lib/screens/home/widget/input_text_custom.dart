@@ -60,7 +60,7 @@ Padding inputTextCustom(
                       onTap: _onTapMic,
                       child: AvatarGlow(
                         glowColor: Colors.red,
-                        endRadius: 30,
+                        endRadius: 25,
                         duration: const Duration(milliseconds: 1000),
                         repeat: true,
                         showTwoGlows: true,
@@ -80,7 +80,10 @@ Padding inputTextCustom(
                   child: InkWell(
                       onTap: _onTapFinishInputText,
                       child: const Icon(Icons.send)),
-                )
+                ),
+              const SizedBox(
+                width: 10,
+              ),
             ],
           ),
         )
